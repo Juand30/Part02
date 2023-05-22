@@ -38,7 +38,16 @@ const Exercise1 = () => {
     setClicks(clicks + 1);
   };
   
+  const handleReset =() =>{
+    setGood(0);
+    setNeutral(0);
+    setBad(0);
+    setClicks(0);
+  }
 
+
+
+  
   return (
     <div> 
       <h1>Give Feedback</h1>
@@ -56,6 +65,9 @@ const Exercise1 = () => {
         ) : (
             <Total clicks={clicks} />
         )}
+        <p>
+          <button onClick={handleReset}>Reset All</button>
+        </p>
     </div>
   )
 }
