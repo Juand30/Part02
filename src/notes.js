@@ -1,47 +1,67 @@
+import { useEffect, useState } from "react";
+import { Note } from "./note";
+import axios from "axios";
+import "./index.css"
 
-
-export const Collections = () => {
-  const notes = [
-    {
-        id: 1,
-        content: 'HTML is easy',
-        date: '2019-05-30T17:30:31.098Z',
-        important: true,
-      },
-      {
-        id: 2,
-        content: 'Browser can execute only JavaScript',
-        date: '2019-05-30T18:39:34.091Z',
-        important: false,
-      },
-      {
-        id: 3,
-        content: 'GET and POST are the most important methods of HTTP protocol',
-        date: '2019-05-30T19:20:14.298Z',
-        important: true,
-      },
-  ];
-
+export const App = () => {
 //   if (typeof notes === 'undefined' || notes.length === 0 ){
 //     return 'No hay notas que mostrar'
 //   }
+const [notes, setNotes] = useState([]);
+const [newNote, setNewNote] = useState('')
+const [loading, setLoading] = useState(false)
 
-const Note = ({id, content, date})=>{
-    return (
-    <li>
-    <p><strong>{content}</strong></p>
-    <small>
-        <time>{date}</time>
-    </small>
-  </li>
-    )
-}
-console.log()
+useEffect(() => {
+  setLoading(true)
+  setTimeout(()=>{
+  console.log('useEffect')
+  fetch('https://jsonplaceholder.typicode.com/posts')
+  .then(response => response.json())
+  .then(json => {
+    setNotes(json)
+    setLoading(false)
+  })
+}, 2000);
+}, []);
+
+const handleChange = (event) =>{
+  setNewNote(event.target.value)
+
+};
+
+const handleSubmit =(event)=>{
+  event.preventDefault();
+  console.log('crear nota')
+
+  const noteToAddToState ={
+    id: notes.length + 1,
+    title: newNote,
+    body: newNote,
+  }
+  console.log(noteToAddToState)
+
+  setNotes(notes.concat(noteToAddToState))
+  setNewNote('')
+};
+
+
   return (
+    <div>
+    <h1>Notes</h1>
+    {
+      loading ? 'Cargando...' : ''
+    }
     <ol>
-      {notes.map(note => 
-      <Note key={note.id} id={note.id} content={note.content} date={note.date}/>)}
+      {notes.map(note => (
+      <Note key={note.id} {...note} />
+      ))}
     </ol>
+    <br/>
+    <form onSubmit={handleSubmit}>
+    <input type="text" onChange={handleChange} value={newNote}/>
+    <button>Crear Nota</button>
+    </form>
+    </div>
   );
 };
 
