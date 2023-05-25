@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Note } from "./note";
-import axios from "axios";
 import "./index.css"
+import { getAllNotes } from "./services/notes/getAllNotes";
+import { createNote } from "./services/notes/createNotes";
 
 export const App = () => {
 //   if (typeof notes === 'undefined' || notes.length === 0 ){
@@ -9,38 +10,44 @@ export const App = () => {
 //   }
 const [notes, setNotes] = useState([]);
 const [newNote, setNewNote] = useState('')
-const [loading, setLoading] = useState(false)
+const [loading, setLoading] = useState(false);
+const [error, setError] = useState('');
 
 useEffect(() => {
   setLoading(true)
-  setTimeout(()=>{
   console.log('useEffect')
-  fetch('https://jsonplaceholder.typicode.com/posts')
-  .then(response => response.json())
-  .then(json => {
-    setNotes(json)
+  getAllNotes().then((notes) =>{
+    setNotes(notes);
     setLoading(false)
-  })
-}, 2000);
+  });
 }, []);
 
 const handleChange = (event) =>{
+
   setNewNote(event.target.value)
 
 };
-
+  
 const handleSubmit =(event)=>{
   event.preventDefault();
   console.log('crear nota')
-
   const noteToAddToState ={
-    id: notes.length + 1,
     title: newNote,
     body: newNote,
-  }
-  console.log(noteToAddToState)
+    userId: 1
+  };
 
-  setNotes(notes.concat(noteToAddToState))
+  setError('');
+
+  createNote(noteToAddToState)
+    .then(newNote=>{
+      setNotes((notes) => notes.concat(newNote))
+    })
+    .catch((error) =>{
+      console.error(error);
+      setError('la API ha petado')
+    })
+  
   setNewNote('')
 };
 
@@ -51,6 +58,8 @@ const handleSubmit =(event)=>{
     {
       loading ? 'Cargando...' : ''
     }
+
+    {error ? error : ''}
     <ol>
       {notes.map(note => (
       <Note key={note.id} {...note} />
